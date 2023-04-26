@@ -25,3 +25,9 @@ Durante o processo de reconhecimento, foram encontrados alguns serviços web que
 Após acessarmos tal aplicação, nos deparamos com diversas opções que serviam como auxílio aos colaboradores da companhia. Como por exemplo, descrevia como acessar um sistema específico, como solicitar ajuda em um problema técnico, entre outros. Decidimos por analisar todos os tópicos contidos na documentação e, ao ver um chamado em aberto, acabamos por achar uma aplicação conveniente para nossa situação.
 
 Se tratava de um sistema de gerenciamento de assinaturas de e-mail feito em PHP, que por sua vez, poderia ter diversas vulnerabilidades que nos renderiam algum acesso ou informações privilegiadas sobre algum usuário da rede.
+
+## SQL Injection.
+
+Na aplicação encontrada, existiam alguns funções como: selecionar um funcionário específico da rede, modelo especifico da assinatura e afins. Visto isso, fizemos uma seleção aleatória e clicamos no botão de “Processar” para que a assinatura fosse gerada.
+
+Com a assinatura montada pela aplicação, notamos que existiam parâmetros repassados via GET e que, por sua vez, poderiam estar vulneráveis a ataques de injeção de SQL. E, para nossa felicidade (rs), ao repassarmos uma aspas simples a um dos parâmetros, o seguinte erro aparecia:
