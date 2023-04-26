@@ -63,3 +63,16 @@ Note, conforme exibido na imagem acima, que foi possível identificar um usuári
 
 Por conta deste usuário pertencer ao grupo Account Operators, a maneira mais eficiente de exploração seria nos alocarmos em um grupo que tenha permissão GenericAll sobre o domínio, para que assim, seja feito um ataque de DCSync. Vale ressaltar que o grupo “Account Operators” nos oferece permissão para adicionarmos membros nestes grupos.
 
+![Desktop View](/assets/imagens/posts/bloohound3.png)
+_Os membros do grupo Account Operators tem permissão geral sobre o grupo EXCHANGE TRUSTED SUBSYSTEM_
+
+O Exchange Trusted Subsystem é um grupo de alto privilégio que tem acesso de escrita e leitura a qualquer objeto relacionado ao Exchange da organização, e assim, ele poderá servir de ponte para o ataque citado anteriormente.
+
+![Desktop View](/assets/imagens/posts/bloodhound2.png)
+
+Note que o grupo "EXCHANGE TRUSTED SUBSYSTEM" tem privilégio de GenericAll sobre o domínio. Tendo isso em mente, partiremos para a exploração. Um ataque DCSync é um método em que invasores executam processos que se comportam como um controlador de domínio e usam o protocolo remoto do Directory Replication Service (DRS) para replicar informações do AD, tal como a hash NTLM do usuário especificado pelo atacante.
+
+Porém, temos um problema: não temos nenhum tipo de acesso inicial a algum Windows para que executemos este ataque. Caso tivéssemos alguma shell em um Windows no domínio com o usuário recém-comprometido, bastávamos executar comandos do CMD que nos adicionasse ao grupo, como o comando "net group".
+
+A solução foi interagir diretamente com o protocolo LDAP para a adição de nosso usuário ao grupo “EXCHANGE TRUSTED SUBSYSTEM”, para que assim, tenhamos permissão de replicar hashes NTLM. Foi desenvolvido uma ferramenta em Golang que fará a soma do usuário ao grupo.
+
