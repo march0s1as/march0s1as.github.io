@@ -56,9 +56,9 @@ Por conta disso, resolvemos analisar melhor o ambiente. Para isso, utilizamos a 
 
 ![Desktop View](/assets/imagens/posts/bd1.png)
 
-Note, conforme exibido na imagem acima, que foi possível identificar um usuário que estava alocado no grupo de Account Operators. O diferencial deste usuário é que ele tinha sua senha cadastrada no TeamPass, serviço anteriormente comprometido. O grupo Account Operators, no Active Directory, é um grupo de segurança pré-definido que permite aos seus membros gerenciar contas de usuário e grupos em um domínio.
+Note, conforme exibido na imagem acima, que foi possível identificar um usuário que estava alocado no grupo de Account Operators. O diferencial deste usuário é que ele tinha sua senha cadastrada no TeamPass, serviço anteriormente comprometido. Consequentemente, adquirimos credenciais válidas do usuário acima, obtendo acesso ao usuário.
 
-Por conta deste usuário pertencer ao grupo Account Operators, a maneira mais eficiente de exploração seria nos alocarmos em um grupo que tenha permissão GenericAll sobre o domínio, para que assim, seja feito um ataque de DCSync. Vale ressaltar que o grupo “Account Operators” nos oferece permissão para adicionarmos membros nestes grupos.
+O grupo Account Operators, no Active Directory, é um grupo de segurança pré-definido que permite aos seus membros gerenciar contas de usuário e grupos em um domínio. Por conta deste usuário pertencer ao grupo Account Operators, a maneira mais eficiente de exploração seria nos alocarmos em um grupo que tenha permissão GenericAll sobre o domínio, para que assim, seja feito um ataque de DCSync. Vale ressaltar que o grupo “Account Operators” nos oferece permissão para adicionarmos membros nestes grupos.
 
 ![Desktop View](/assets/imagens/posts/bloohound3.png)
 _Os membros do grupo Account Operators tem permissão geral sobre o grupo EXCHANGE TRUSTED SUBSYSTEM_
