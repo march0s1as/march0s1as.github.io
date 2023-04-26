@@ -45,3 +45,5 @@ Por se tratar de uma vulnerabilidade que afeta diretamente o banco de dados, foi
 
 Durante o ataque, foi possível notar que existia uma coluna chamada "senhas", infelizmente criptografadas. Com isso em mente, utilizamos um ótimo site de quebra de hashes online, o [CMD5.org](https://www.cmd5.org/), que possibilitou que quebrássemos algumas senhas. Dentre elas, de um usuário em específico que nos rendeu um acesso melhor na rede.
 
+![Desktop View](/assets/imagens/posts/a.jpeg)
+
