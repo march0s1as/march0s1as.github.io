@@ -31,3 +31,14 @@ Se tratava de um sistema de gerenciamento de assinaturas de e-mail feito em PHP,
 Na aplicação encontrada, existiam alguns funções como: selecionar um funcionário específico da rede, modelo especifico da assinatura e afins. Visto isso, fizemos uma seleção aleatória e clicamos no botão de “Processar” para que a assinatura fosse gerada.
 
 Com a assinatura montada pela aplicação, notamos que existiam parâmetros repassados via GET e que, por sua vez, poderiam estar vulneráveis a ataques de injeção de SQL. E, para nossa felicidade (rs), ao repassarmos uma aspas simples a um dos parâmetros, o seguinte erro aparecia:
+
+```sql
+-- SQL ERROR (meramente ilustrativo)
+Warning: pg_query(): Query failed: ERROR: syntax error at or near "135" LINE 3: select * from
+TESTE where valor = '4362'';
+
+ERROR: syntax error at or near "135" LINE 1: select * from where valor= '4362'; ^
+| where valor= '4362''; ^ in /var/www/wwwsite/modulo/req.php on line 122'
+```
+
+Por se tratar de uma vulnerabilidade que afeta diretamente o banco de dados, foi possível realizar operações que retornassem informações confidenciais sobre ele, como: exibição da versão, exibição das databases, tabelas, colunas, entre outros.
