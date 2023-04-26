@@ -42,3 +42,6 @@ ERROR: syntax error at or near "137" LINE 1: select * from where valor= '4362'; 
 ```
 
 Por se tratar de uma vulnerabilidade que afeta diretamente o banco de dados, foi possível realizar operações que retornassem informações confidenciais sobre ele, como: exibição da versão, exibição das databases, tabelas, colunas, entre outros.
+
+Durante o ataque, foi possível notar que existia uma coluna chamada "senhas", infelizmente criptografadas. Com isso em mente, utilizamos um ótimo site de quebra de hashes online, o [CMD5.org](https://www.cmd5.org/), que possibilitou que quebrássemos algumas senhas. Dentre elas, de um usuário em específico que nos rendeu um acesso melhor na rede.
+
