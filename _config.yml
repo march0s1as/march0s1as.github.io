@@ -18,7 +18,7 @@ timezone:
 # jekyll-seo-tag settings › https://github.com/jekyll/jekyll-seo-tag/blob/master/docs/usage.md
 # ↓ --------------------------
 
-title: Meu Blog! # the main title
+title: Meu Blog!
 
 tagline: cybersecurity analyst - pentester. # it will display as the sub-title
 
