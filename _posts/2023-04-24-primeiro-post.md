@@ -47,3 +47,19 @@ Durante o ataque, foi possível notar que existia uma coluna chamada "senhas", i
 
 ![Desktop View](/assets/imagens/posts/senha.png)
 
+Durante o reconhecimento das máquinas e seus respectivos serviços, notamos que existia um endereço que hospedava um serviço de HelpDesk, conforme citado durante o processo de reconhecimento. Com as novas credenciais em mãos, conseguimos logar na plataforma como administrador!
+
+Ao analisarmos os chamados que foram abertos, que antes não tínhamos permissão de visualizá-los alguns, notamos um que chamou nossa atenção: reset de senha do TeamPass.
+
+O TeamPass trata-se de um software de gerenciamento de senhas colaborativo entre membros que fazem parte do grupo de acesso. Com as credenciais que obtemos ao abrirmos o ticket, conseguimos logar na plataforma. Algumas das senhas armazenadas foram válidas, e nos permitiu acesso a alguns diferentes serviços na rede. Mas, o que almejávamos era um acesso inicial a uma máquina Windows, que, infelizmente, não ocorreu. =[
+
+## BloodHound.
+
+Por conta disso, resolvemos analisar melhor o ambiente. Para isso, utilizamos a ferramenta [RustHound](https://github.com/OPENCYBER-FR/RustHound) (uma implementação do SharpHound, mas em Rust), que serviu para enumeração de usuários, grupos, ACLs, entre outros, do domínio. Após a finalização do RustHound e seus arquivos JSON serem exportados ao BloodHound, foi possível notar um caminho em específico que chamou a nossa atenção. Veja:
+
+![Desktop View](/assets/imagens/posts/bd1.png)
+
+Note, conforme exibido na imagem acima, que foi possível identificar um usuário que estava alocado no grupo de Account Operators. O diferencial deste usuário é que ele tinha sua senha cadastrada no TeamPass, serviço anteriormente comprometido. O grupo Account Operators, no Active Directory, é um grupo de segurança pré-definido que permite aos seus membros gerenciar contas de usuário e grupos em um domínio.
+
+Por conta deste usuário pertencer ao grupo Account Operators, a maneira mais eficiente de exploração seria nos alocarmos em um grupo que tenha permissão GenericAll sobre o domínio, para que assim, seja feito um ataque de DCSync. Vale ressaltar que o grupo “Account Operators” nos oferece permissão para adicionarmos membros nestes grupos.
+
